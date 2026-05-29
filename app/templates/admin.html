@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="card">
+  <h2>Admin Panel — All Users</h2>
+  <p style="color:#888; font-size:0.9rem; margin-bottom:1rem;">
+    Only admins can see this page. Regular users are redirected away.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Role</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      <tr>
+        <td>{{ user.id }}</td>
+        <td>{{ user.username }}</td>
+        <td>{{ user.email }}</td>
+        <td>
+          <span class="badge {% if user.role == 'admin' %}badge-admin{% else %}badge-user{% endif %}">
+            {{ user.role }}
+          </span>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container" style="padding-top: 2rem;">
+
+  <!-- Add Note Form -->
+  <div class="card" style="margin-bottom: 2rem;">
+    <h2 style="margin-bottom: 1.2rem;">Add a Note</h2>
+    <form method="POST" enctype="multipart/form-data">
+    
+
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" name="title" placeholder="Note title..." required>
+      </div>
+
+      <div class="form-group">
+        <label>Note content</label>
+        <textarea name="content" rows="4" placeholder="Write your note here..." required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Attach an image <span style="color:#999; font-weight:normal;">(optional)</span></label>
+        <input type="file" name="image" accept="image/*" style="padding: 0.4rem;">
+      </div>
+
+      <button type="submit" class="btn btn-primary">Save Note</button>
+    </form>
+  </div>
+
+  <!-- Search Bar -->
+  <form method="GET" style="margin-bottom: 1.5rem; display:flex; gap: 0.5rem;">
+    <input
+      type="text"
+      name="search"
+      value="{{ search }}"
+      placeholder="Search notes by title or content..."
+      style="flex:1; padding: 0.6rem 1rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95rem;">
+    <button type="submit" class="btn btn-primary" style="padding: 0.6rem 1.2rem;">Search</button>
+    {% if search %}
+      <a href="{{ url_for('main.dashboard') }}" class="btn" style="padding: 0.6rem 1rem; background:#eee; color:#333; border-radius:6px;">Clear</a>
+    {% endif %}
+  </form>
+
+  <!-- Notes Display -->
+  <div>
+    <h2 style="margin-bottom: 1rem;">
+      {% if current_user.role == 'admin' %}
+        All Notes <span style="font-size:0.85rem; color:#999; font-weight:normal;">(Admin View)</span>
+      {% else %}
+        My Notes
+      {% endif %}
+      {% if search %}
+        <span style="font-size:0.85rem; color:#e94560; font-weight:normal;"> — results for "{{ search }}"</span>
+      {% endif %}
+    </h2>
+
+    {% if notes %}
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.2rem;">
+        {% for note in notes %}
+        <div class="card" style="padding: 1.2rem; display:flex; flex-direction:column; gap: 0.6rem;">
+
+          <!-- Image -->
+          {% if note.image_filename %}
+          <img
+            src="{{ url_for('static', filename='uploads/' + note.image_filename) }}"
+            alt="Note image"
+            style="width:100%; height:160px; object-fit:cover; border-radius:6px; margin-bottom:0.4rem;">
+          {% endif %}
+
+          <!-- Title -->
+          <h3 style="font-size:1rem; color:#1a1a2e; margin:0;">{{ note.title }}</h3>
+
+          <!-- Content -->
+          <p style="font-size:0.9rem; color:#555; margin:0; flex:1;">{{ note.content }}</p>
+
+          <!-- Meta -->
+          <div style="font-size:0.78rem; color:#aaa; display:flex; justify-content:space-between; align-items:center; margin-top:0.4rem;">
+            <span>
+              {% if current_user.role == 'admin' %}
+                By {{ note.author.username }} &middot;
+              {% endif %}
+              {{ note.created_at.strftime('%b %d, %Y') if note.created_at else '' }}
+            </span>
+
+            <!-- Delete button -->
+            <form method="POST" action="{{ url_for('main.delete_note', note_id=note.id) }}"
+                  onsubmit="return confirm('Delete this note?')">
+             
+              <button type="submit"
+                style="background:none; border:none; color:#e94560; cursor:pointer; font-size:0.8rem; padding:0;">
+                🗑 Delete
+              </button>
+            </form>
+          </div>
+
+        </div>
+        {% endfor %}
+      </div>
+
+    {% else %}
+      <div class="card" style="text-align:center; color:#999; padding: 2rem;">
+        {% if search %}
+          No notes found for "{{ search }}".
+        {% else %}
+          No notes yet — add your first one above!
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
