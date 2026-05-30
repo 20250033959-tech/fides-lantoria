@@ -23,7 +23,7 @@ def create_app():
     app.register_blueprint(main)
 
 
-with app.app_context():
+    with app.app_context():
         db.create_all()
-        
+
     return app
